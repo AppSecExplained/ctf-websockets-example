@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat Demo</title>
+</head>
+<body>
+    <div id="chatLog" style="height: 300px; border: 1px solid #000; overflow-y: scroll; padding: 10px; margin-bottom: 10px;"></div>
+    <input type="text" id="messageInput" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:3000');
+        const chatLog = document.getElementById('chatLog');
+        const messageInput = document.getElementById('messageInput');
+
+        function appendToChatLog(message, sender = 'server') {
+            chatLog.innerHTML += `<strong>${sender}:</strong> ${message}<br>`;
+        }
+
+        function sendMessage() {
+            const message = messageInput.value;
+            if (message.trim() === '') return;
+
+            appendToChatLog(message, 'you');
+            socket.send(message);
+            messageInput.value = '';
+        }
+
+        socket.addEventListener('open', (event) => {
+            appendToChatLog('Connected to the chat server.');
+        });
+
+        socket.addEventListener('message', (event) => {
+            appendToChatLog(event.data);
+        });
+    </script>
+</body>
+</html>
